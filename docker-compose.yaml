@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # 1. INGESTION SERVICE (Python App)
+  # Reads data from MTA and writes Delta tables.
+  ingestion:
+    image: ghcr.io/${{ github.repository }}/ingestion:latest
+    container_name: mta_ingestion
+
+    volumes:
+      - delta-volume:/app/data/delta
+
+    environment:
+      - DELTA_BASE_PATH=/app/data/delta
+      - SPARK_DRIVER_HOST=ingestion
+      - SPARK_LOCAL_IP=ingestion
+
+    restart: on-failure
+    networks:
+      - mta-net
+
+  # 2. QUERY SERVICE (Spark Thrift Server)
+  # Provides SQL access to the Delta tables via JDBC/ODBC (for Superset).
+  query:
+    image: ghcr.io/${{ github.repository }}/query:latest
+    container_name: mta_query
+    volumes:
+      - delta-volume:/delta
+    # Expose the standard tools
+    ports:
+      - "10000:10000" # Thrift Server port
+      - "10001:10001" # Hive Metastore port
+    environment:
+      - DELTA_BASE_PATH=/delta
+    entrypoint: ["/usr/local/bin/run_thriftserver.sh"]
+    # Ensures the ingestion service runs before the query service starts serving
+    depends_on:
+      - ingestion
+    networks:
+      - mta-net
+
+# Define a shared network for container communication
+networks:
+  mta-net:
+    driver: bridge
+
+# Define a persistent volume for the Delta Lake data
+volumes:
+  delta-volume:
+    driver: local

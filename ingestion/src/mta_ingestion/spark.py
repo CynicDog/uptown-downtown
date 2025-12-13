@@ -1,4 +1,3 @@
-# spark.py
 from pyspark.sql import SparkSession
 from mta_ingestion.config import DELTA_BASE_PATH
 
