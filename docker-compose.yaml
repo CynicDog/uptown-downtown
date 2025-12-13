@@ -5,6 +5,7 @@ services:
   # Reads data from MTA and writes Delta tables.
   ingestion:
     image: ghcr.io/cynicdog/uptown-downtown/ingestion:latest
+    pull_policy: always
     container_name: mta_ingestion
     platform: linux/amd64
     volumes:
@@ -21,6 +22,7 @@ services:
   # Provides SQL access to the Delta tables via JDBC/ODBC (for Superset).
   query:
     image: ghcr.io/cynicdog/uptown-downtown/query:latest
+    pull_policy: always
     container_name: mta_query
     platform: linux/amd64
     volumes:
