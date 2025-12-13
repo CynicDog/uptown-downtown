@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from mta_ingestion.config import DELTA_BASE_PATH
+from mta_ingestion.config import DELTA_BASE_PATH, SPARK_DRIVER_MEMORY, SPARK_EXECUTOR_MEMORY
 
 
 def create_spark_session(app_name: str = "mta-ingestion") -> SparkSession:
@@ -23,6 +23,14 @@ def create_spark_session(app_name: str = "mta-ingestion") -> SparkSession:
         .config(
             "spark.sql.warehouse.dir",
             str(warehouse_dir),
+        )
+        .config(
+            "spark.driver.memory",
+            SPARK_DRIVER_MEMORY
+        )
+        .config(
+            "spark.executor.memory",
+            SPARK_EXECUTOR_MEMORY
         )
         .getOrCreate()
     )

@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+SPARK_DRIVER_MEMORY = os.getenv("SPARK_DRIVER_MEMORY", "2g")
+
+SPARK_EXECUTOR_MEMORY = os.getenv("SPARK_EXECUTOR_MEMORY", "4g")
 
 MTA_FEED_URL = (
     "https://api-endpoint.mta.info/"

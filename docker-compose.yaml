@@ -4,17 +4,15 @@ services:
   # 1. INGESTION SERVICE (Python App)
   # Reads data from MTA and writes Delta tables.
   ingestion:
-    image: ghcr.io/${{ github.repository }}/ingestion:latest
+    image: ghcr.io/cynicdog/uptown-downtown/ingestion:latest
     container_name: mta_ingestion
-
+    platform: linux/amd64
     volumes:
       - delta-volume:/app/data/delta
-
     environment:
       - DELTA_BASE_PATH=/app/data/delta
       - SPARK_DRIVER_HOST=ingestion
       - SPARK_LOCAL_IP=ingestion
-
     restart: on-failure
     networks:
       - mta-net
@@ -22,8 +20,9 @@ services:
   # 2. QUERY SERVICE (Spark Thrift Server)
   # Provides SQL access to the Delta tables via JDBC/ODBC (for Superset).
   query:
-    image: ghcr.io/${{ github.repository }}/query:latest
+    image: ghcr.io/cynicdog/uptown-downtown/query:latest
     container_name: mta_query
+    platform: linux/amd64
     volumes:
       - delta-volume:/delta
     # Expose the standard tools
