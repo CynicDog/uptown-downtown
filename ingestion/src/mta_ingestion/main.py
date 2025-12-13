@@ -11,6 +11,8 @@ from mta_ingestion.fetcher import fetch_feed
 from mta_ingestion.parser import parse_feed
 from mta_ingestion.spark import create_spark_session
 
+import sys
+sys.stdout.reconfigure(line_buffering=True)
 
 def main():
     spark = create_spark_session()
