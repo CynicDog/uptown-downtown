@@ -25,3 +25,19 @@ data/
         ├── _delta_log/
         └── part-*.parquet
 ```
+
+## Run as Container 
+
+### Build the Docker image
+```bash
+docker build -t mta-ingestion:latest .
+```
+
+### Run the container
+```bash
+docker run --rm \
+    -v "$(pwd)/data/delta":/app/data/delta \
+    -e DELTA_BASE_PATH=/app/data/delta \
+    --name mta-ingestion \
+    mta-ingestion:latest
+```
