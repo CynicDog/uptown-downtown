@@ -52,5 +52,8 @@ COPY --from=build-python /app/.venv/ /app/.venv/
 RUN mkdir -p $DELTA_BASE_PATH/warehouse \
     && mkdir -p $DELTA_BASE_PATH/mta_trip_updates_bronze
 
+# Expose Spark UI port
+EXPOSE 4040
+
 # Entrypoint: Run the ingestion service using the interpreter inside the copied .venv
 ENTRYPOINT ["/app/.venv/bin/python", "-m", "mta_ingestion.main"]

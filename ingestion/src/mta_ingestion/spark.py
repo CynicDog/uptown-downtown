@@ -32,5 +32,9 @@ def create_spark_session(app_name: str = "mta-ingestion") -> SparkSession:
             "spark.executor.memory",
             SPARK_EXECUTOR_MEMORY
         )
+        .config(
+            "spark.ui.port",
+            "4040"
+        )
         .getOrCreate()
     )

@@ -7,6 +7,8 @@ services:
     platform: linux/amd64
     volumes:
       - delta-volume:/app/data/delta
+    ports:
+      - "4040:4040"  # Spark UI
     environment:
       - DELTA_BASE_PATH=/app/data/delta
       - SPARK_DRIVER_HOST=ingestion
@@ -18,26 +20,24 @@ services:
   # 2. QUERY SERVICE (Spark Thrift Server)
   query:
     image: apache/spark:3.5.1
-    container_name: mta_querya
+    container_name: mta_query
     platform: linux/amd64
     volumes:
       - delta-volume:/delta
     ports:
-      - "10000:10000" # Thrift Server port
-      - "10001:10001" # Hive Metastore port
+      - "10000:10000"
+      - "10001:10001"
     environment:
       - DELTA_BASE_PATH=/delta
-      - SPARK_HOME=/opt/spark-3.5.1-bin-hadoop3
-      - PATH=/opt/spark-3.5.1-bin-hadoop3/bin:$PATH
-    entrypoint: >
-      bash -c "
-      exec /opt/spark-3.5.1-bin-hadoop3/sbin/start-thriftserver.sh \
-      --master local[*] \
-      --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
-      --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
-      --packages io.delta:delta-spark_2.12:3.2.0 \
-      --foreground
-      "
+      - SPARK_HOME=/opt/spark
+      - PATH=/opt/spark/bin:$PATH
+    entrypoint: |
+      bash -c '/opt/spark/sbin/start-thriftserver.sh \
+        --master local[*] \
+        --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+        --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+        --packages io.delta:delta-spark_2.12:3.2.0 \
+        --foreground; sleep infinity'
     depends_on:
       - ingestion
     networks:
