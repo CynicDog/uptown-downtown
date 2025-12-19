@@ -3,8 +3,6 @@
 Query live MTA trip data stored in **Delta Lake** format by the ingestion service.  
 This service exposes the data via **Spark SQL / Hive Thrift Server**, allowing BI tools like **Apache Superset** to connect and query it.
 
----
-
 ## Access the query container
 
 ```bash
@@ -24,11 +22,8 @@ docker exec -it --user root mta_query bash
 ## Query the data
 
 ```sql
-CREATE TABLE IF NOT EXISTS mta_trips
-USING DELTA
-LOCATION '/delta/mta_trip_updates_bronze';
-
-SELECT * FROM mta_trips LIMIT 10;
+SELECT *
+FROM delta.`/delta/mta_trip_updates_bronze`;
 ```
 
 ## Connecting Apache Superset (Hive)
@@ -38,7 +33,7 @@ This service exposes a **Hive Thrift Server** endpoint that Superset can use.
 ### Connection URI
 
 ```
-hive://query:10000/default
+hive://mta_query:10000/default
 ```
 
 * **Host**: `query`
@@ -54,7 +49,7 @@ SELECT
   route_id,
   trip_id,
   timestamp
-FROM mta_trips
+FROM delta.`/delta/mta_trip_updates_bronze`;
 ORDER BY timestamp DESC
 LIMIT 100;
 ```
