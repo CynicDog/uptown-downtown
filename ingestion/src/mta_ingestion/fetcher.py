@@ -1,5 +1,4 @@
 import requests
-
 from mta_ingestion.proto.com.google.transit.realtime import (
     gtfs_realtime_pb2,
 )

@@ -1,44 +1,46 @@
 import time
 import datetime
+from pathlib import Path
+import sys
 
+from mta_ingestion.fetcher import fetch_feed
+from mta_ingestion.parser import parse_feed
+from mta_ingestion.writer import write_jsonl
 from mta_ingestion.config import (
     MTA_FEED_URL,
     HEADERS,
     POLL_INTERVAL_SECONDS,
-    DELTA_PATH,
 )
-from mta_ingestion.fetcher import fetch_feed
-from mta_ingestion.parser import parse_feed
-from mta_ingestion.spark import create_spark_session
 
-import sys
 sys.stdout.reconfigure(line_buffering=True)
 
-def main():
-    spark = create_spark_session()
+RAW_PATH = Path("/data/mta/raw")
 
+
+def main() -> None:
     while True:
-        ingestion_ts = datetime.datetime.utcnow()
+        ingestion_ts = datetime.datetime.now(tz=datetime.timezone.utc)
+        file_path = None
 
         try:
             feed = fetch_feed(MTA_FEED_URL, HEADERS)
             rows = parse_feed(feed, ingestion_ts)
 
             if rows:
-                df = spark.createDataFrame(rows)
-                (
-                    df.write
-                    .format("delta")
-                    .mode("append")
-                    .save(str(DELTA_PATH))
+                file_path = write_jsonl(rows, RAW_PATH, ingestion_ts)
+
+            if file_path:
+                print(
+                    f"[INFO] Ingested {len(rows)} rows at {ingestion_ts.isoformat()} "
+                    f"→ {file_path}"
+                )
+            else:
+                print(
+                    f"[INFO] Ingested 0 rows at {ingestion_ts.isoformat()}"
                 )
 
-            print(
-                f"Ingested {len(rows)} rows at {ingestion_ts.isoformat()}"
-            )
-
-        except Exception as e:
-            print(f"[ERROR] ingestion failed: {e}")
+        except Exception as exc:
+            print(f"[ERROR] ingestion failed: {exc}")
 
         time.sleep(POLL_INTERVAL_SECONDS)
 

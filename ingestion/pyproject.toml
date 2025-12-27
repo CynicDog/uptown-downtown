@@ -7,8 +7,6 @@ requires-python = ">=3.11,<3.12"
 dependencies = [
   "requests>=2.31",
   "protobuf>=4.25",
-  "pyspark==3.5.1",
-  "delta-spark==3.2.0",
 ]
 
 [tool.uv]

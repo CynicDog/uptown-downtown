@@ -3,13 +3,13 @@ from mta_ingestion.proto import gtfs_realtime_NYCT_pb2 as nyct_pb2
 
 
 def parse_feed(feed, ingestion_ts: datetime.datetime) -> list[dict]:
-    rows = []
+    rows: list[dict] = []
 
     for entity in feed.entity:
         if not entity.HasField("trip_update"):
             continue
 
-        trip_update = entity.trip_update  # from base GTFS
+        trip_update = entity.trip_update
         trip = trip_update.trip
         nyct_trip = trip.Extensions[nyct_pb2.nyct_trip_descriptor]
 
@@ -17,12 +17,12 @@ def parse_feed(feed, ingestion_ts: datetime.datetime) -> list[dict]:
             nyct_stop = stu.Extensions[nyct_pb2.nyct_stop_time_update]
 
             arrival_time = (
-                datetime.datetime.fromtimestamp(stu.arrival.time)
+                datetime.datetime.fromtimestamp(stu.arrival.time, tz=datetime.timezone.utc)
                 if stu.HasField("arrival") and stu.arrival.HasField("time")
                 else None
             )
             departure_time = (
-                datetime.datetime.fromtimestamp(stu.departure.time)
+                datetime.datetime.fromtimestamp(stu.departure.time, tz=datetime.timezone.utc)
                 if stu.HasField("departure") and stu.departure.HasField("time")
                 else None
             )
