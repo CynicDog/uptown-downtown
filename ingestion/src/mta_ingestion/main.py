@@ -10,12 +10,12 @@ from mta_ingestion.config import (
     MTA_FEED_URL,
     HEADERS,
     POLL_INTERVAL_SECONDS,
+    RAW_BASE_PATH,
 )
 
 sys.stdout.reconfigure(line_buffering=True)
 
-RAW_PATH = Path("/data/mta/raw")
-
+RAW_PATH = RAW_BASE_PATH
 
 def main() -> None:
     while True:

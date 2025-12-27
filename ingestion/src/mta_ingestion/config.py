@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-SPARK_DRIVER_MEMORY = os.getenv("SPARK_DRIVER_MEMORY", "2g")
-SPARK_EXECUTOR_MEMORY = os.getenv("SPARK_EXECUTOR_MEMORY", "4g")
 
 MTA_FEED_URL = (
     "https://api-endpoint.mta.info/"
@@ -13,10 +11,10 @@ HEADERS = {
     "Accept": "application/x-protobuf",
 }
 
-POLL_INTERVAL_SECONDS = 30
-
-DELTA_BASE_PATH = Path(
-    os.getenv("DELTA_BASE_PATH", Path.cwd() / "data" / "delta")
+POLL_INTERVAL_SECONDS = int(
+    os.getenv("POLL_INTERVAL_SECONDS", "30")
 )
 
-DELTA_PATH = DELTA_BASE_PATH / "mta_trip_updates_bronze"
+RAW_BASE_PATH = Path(
+    os.getenv("RAW_BASE_PATH", Path.cwd() / "data" / "raw")
+)
